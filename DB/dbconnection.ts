@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import {
-  DB_LOCAL,
+  DB_ATLAS,
   MONGO_CONNECT_RETRIES,
   MONGO_CONNECT_DELAY_MS,
 } from "../config/config.service.js";
@@ -8,7 +8,9 @@ import { loggerService } from "../Common/Logger/logger.service.js";
 
 export async function DB_Connection() {
   if (mongoose.connection.readyState === 1) {
-    loggerService.info("MongoDB connection already active. Reusing cached connection.");
+    loggerService.info(
+      "MongoDB connection already active. Reusing cached connection.",
+    );
     return;
   }
   loggerService.info("Connecting to MongoDB...");
@@ -16,7 +18,7 @@ export async function DB_Connection() {
   let lastError: any;
   for (let attempt = 1; attempt <= MONGO_CONNECT_RETRIES; attempt++) {
     try {
-      await mongoose.connect(DB_LOCAL);
+      await mongoose.connect(DB_ATLAS);
       loggerService.info("MongoDB connected successfully.");
       return;
     } catch (error) {
