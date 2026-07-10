@@ -7,6 +7,10 @@ import {
 import { loggerService } from "../Common/Logger/logger.service.js";
 
 export async function DB_Connection() {
+  if (mongoose.connection.readyState === 1) {
+    loggerService.info("MongoDB connection already active. Reusing cached connection.");
+    return;
+  }
   loggerService.info("Connecting to MongoDB...");
 
   let lastError: any;
