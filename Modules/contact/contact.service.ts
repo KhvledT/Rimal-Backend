@@ -14,6 +14,7 @@ class ContactService {
       filter: {},
       page,
       limit,
+      lean: true,
     });
   }
 

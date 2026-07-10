@@ -3,6 +3,7 @@ import { NotFound, BadRequest } from "../../Common/Exeptions/domain.error.js";
 import { StorageFactory } from "../../Common/Storage/storage.factory.js";
 import { STORAGE_PROVIDER } from "../../config/config.service.js";
 import type { CorporateProfileResponseDto } from "./corporateProfile.dto.js";
+import { loggerService } from "../../Common/Logger/logger.service.js";
 
 class CorporateProfileService {
   private _profileRepo = corporateProfileRepo;
@@ -62,7 +63,7 @@ class CorporateProfileService {
       try {
         await storage.delete(oldProfile.storageKey);
       } catch (err) {
-        console.error("Failed to delete old storage file:", err);
+        loggerService.error("Failed to delete old storage file:", err);
       }
     }
 

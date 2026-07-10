@@ -6,6 +6,7 @@ import {
   CLOUDINARY_API_SECRET,
   CLOUDINARY_CLOUD_NAME,
 } from "../../config/config.service.js";
+import { loggerService } from "../Logger/logger.service.js";
 
 cloudinary.config({
   cloud_name: CLOUDINARY_CLOUD_NAME,
@@ -63,7 +64,7 @@ export async function uploadSmallFileToCloudinary(
       resourceType: result.resource_type,
     };
   } catch (error) {
-    console.error("Small File Upload Error:", error);
+    loggerService.error("Small File Upload Error:", error);
     throw error;
   }
 }
@@ -118,7 +119,7 @@ export async function uploadLargeFileToCloudinary(
       resourceType: result.resource_type,
     };
   } catch (error) {
-    console.error("Large File Upload Error:", error);
+    loggerService.error("Large File Upload Error:", error);
     throw error;
   }
 }
@@ -149,7 +150,7 @@ export async function deleteFileFromCloudinary(publicId: string, resourceType: s
       resource_type: resourceType,
     });
   } catch (error) {
-    console.log(error);
+    loggerService.error("Cloudinary Delete File Error:", error);
   }
 }
 

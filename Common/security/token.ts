@@ -24,6 +24,7 @@ class TokenService {
         break;
 
       case RoleEnum.Admin:
+      case RoleEnum.SuperAdmin:
         accessSignature = JWT_SECRET_ACCESS_ADMIN;
         refreshSignature = JWT_SECRET_REFRESH_ADMIN;
         break;
@@ -83,7 +84,7 @@ class TokenService {
       },
     });
 
-    return { access_Token, refresh_Token };
+    return { access_Token, refresh_Token, jti: tokenId };
   }
 }
 

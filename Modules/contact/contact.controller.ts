@@ -4,11 +4,13 @@ import { validation } from "../../Middleware/validation.middleware.js";
 import success from "../../Common/Response/success.response.js";
 import contactService from "./contact.service.js";
 import * as contactValidation from "./contact.validation.js";
+import { RateLimitFactory } from "../../Common/RateLimit/rateLimit.factory.js";
 
 const contactRouter: express.Router = express.Router();
 
 contactRouter.post(
   "/",
+  RateLimitFactory.createLimiter("contact"),
   validation(contactValidation.createContactSchema),
   async (
     req: express.Request,

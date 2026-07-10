@@ -18,12 +18,15 @@ All responses use the standardized repository success wrapper format:
 3. [Team members (`/team`)](#3-team-members-team)
 4. [Company Contact Info (`/contact-info`)](#4-company-contact-info-contact-info)
 5. [Corporate Profile PDF (`/corporate-profile`)](#5-corporate-profile-pdf-corporate-profile)
+6. [Admin Management (Super Admin Only) (`/admin`)](#6-admin-management-super-admin-only-admin)
+7. [Health Diagnostics (`/health`)](#7-health-diagnostics-health)
+8. [Rate Limiting Policy](#8-rate-limiting-policy)
 
 ---
 
 ## 1. Authentication (`/auth`)
 
-### 1.1 Register Account (Signup)
+### 1.1 Initiate Registration (Signup)
 *   **Method**: `POST`
 *   **URL**: `http://localhost:3000/auth/signup`
 *   **Headers**: 
@@ -31,10 +34,34 @@ All responses use the standardized repository success wrapper format:
 *   **Request Body (JSON)**:
     ```json
     {
-      "username": "admin_user",
-      "email": "admin@rimal.com",
+      "username": "new_user",
+      "email": "user@rimal.com",
+      "password": "SecurePassword123"
+    }
+    ```
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Verification code sent successfully",
+      "result": {
+        "email": "user@rimal.com"
+      }
+    }
+    ```
+
+### 1.2 Verify Registration (Verify Signup)
+*   **Method**: `POST`
+*   **URL**: `http://localhost:3000/auth/verify-signup`
+*   **Headers**: 
+    *   `Content-Type`: `application/json`
+*   **Request Body (JSON)**:
+    ```json
+    {
+      "email": "user@rimal.com",
+      "otp": "123456",
+      "username": "new_user",
       "password": "SecurePassword123",
-      "role": 1 // 1 represents RoleEnum.Admin, 0 represents RoleEnum.User
+      "phone": "+974 4400 1234" // Optional
     }
     ```
 *   **Sample Response (201 Created)**:
@@ -43,14 +70,35 @@ All responses use the standardized repository success wrapper format:
       "message": "Registration successful",
       "result": {
         "id": "64adfb8b2a3d76b1f23cde4a",
-        "userName": "admin_user",
-        "email": "admin@rimal.com",
-        "role": 1
+        "userName": "new_user",
+        "email": "user@rimal.com",
+        "role": 0 // Forces RoleEnum.User (0)
       }
     }
     ```
 
-### 1.2 Authenticate (Login)
+### 1.3 Resend Registration Code (Resend OTP)
+*   **Method**: `POST`
+*   **URL**: `http://localhost:3000/auth/resend-signup-otp`
+*   **Headers**: 
+    *   `Content-Type`: `application/json`
+*   **Request Body (JSON)**:
+    ```json
+    {
+      "email": "user@rimal.com"
+    }
+    ```
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Verification code resent successfully",
+      "result": {
+        "email": "user@rimal.com"
+      }
+    }
+    ```
+
+### 1.4 Authenticate (Login)
 *   **Method**: `POST`
 *   **URL**: `http://localhost:3000/auth/login`
 *   **Headers**: 
@@ -58,7 +106,7 @@ All responses use the standardized repository success wrapper format:
 *   **Request Body (JSON)**:
     ```json
     {
-      "username": "admin_user", // Can be username or email
+      "username": "new_user", // Can be username or email
       "password": "SecurePassword123"
     }
     ```
@@ -69,13 +117,25 @@ All responses use the standardized repository success wrapper format:
       "result": {
         "user": {
           "id": "64adfb8b2a3d76b1f23cde4a",
-          "userName": "admin_user",
-          "email": "admin@rimal.com",
-          "role": 1
+          "userName": "new_user",
+          "email": "user@rimal.com",
+          "role": 0 // 0: User, 1: Admin, 2: SuperAdmin
         },
-        "accessToken": "eyJhbGciOi...", // Use this token to authenticate admin routes
+        "accessToken": "eyJhbGciOi...",
         "refreshToken": "eyJhbGciOi..."
       }
+    }
+    ```
+
+### 1.5 Terminate Session (Logout)
+*   **Method**: `POST`
+*   **URL**: `http://localhost:3000/auth/logout`
+*   **Headers**: 
+    *   `Authorization`: `Bearer <accessToken>`
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Logged out successfully"
     }
     ```
 
@@ -379,3 +439,189 @@ All responses use the standardized repository success wrapper format:
       "message": "Corporate profile deleted successfully"
     }
     ```
+
+---
+
+## 6. Admin Management (Super Admin Only) (`/admin`)
+
+### 6.1 List Users
+*   **Method**: `GET`
+*   **URL**: `http://localhost:3000/admin/users`
+*   **Headers**: 
+    *   `Authorization`: `Bearer <superAdminAccessToken>`
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Users list retrieved successfully",
+      "result": [
+        {
+          "id": "64adfb8b2a3d76b1f23cde4b",
+          "userName": "john_doe",
+          "email": "john@rimal.com",
+          "phone": "+974 4400 9999",
+          "role": 0,
+          "createdAt": "2026-07-10T17:42:00.000Z"
+        }
+      ]
+    }
+    ```
+
+### 6.2 List Admins
+*   **Method**: `GET`
+*   **URL**: `http://localhost:3000/admin/admins`
+*   **Headers**: 
+    *   `Authorization`: `Bearer <superAdminAccessToken>`
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Admins list retrieved successfully",
+      "result": [
+        {
+          "id": "64adfb8b2a3d76b1f23cde4c",
+          "userName": "sub_admin",
+          "email": "subadmin@rimal.com",
+          "phone": "+974 4400 8888",
+          "role": 1,
+          "createdAt": "2026-07-10T17:42:00.000Z"
+        }
+      ]
+    }
+    ```
+
+### 6.3 Promote User to Admin
+*   **Method**: `PATCH`
+*   **URL**: `http://localhost:3000/admin/promote/64adfb8b2a3d76b1f23cde4b`
+*   **Headers**: 
+    *   `Authorization`: `Bearer <superAdminAccessToken>`
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "User promoted to Admin successfully",
+      "result": {
+        "id": "64adfb8b2a3d76b1f23cde4b",
+        "userName": "john_doe",
+        "email": "john@rimal.com",
+        "phone": "+974 4400 9999",
+        "role": 1,
+        "createdAt": "2026-07-10T17:42:00.000Z"
+      }
+    }
+    ```
+
+### 6.4 Demote Admin to User
+*   **Method**: `PATCH`
+*   **URL**: `http://localhost:3000/admin/demote/64adfb8b2a3d76b1f23cde4c`
+*   **Headers**: 
+    *   `Authorization`: `Bearer <superAdminAccessToken>`
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Admin demoted to User successfully",
+      "result": {
+        "id": "64adfb8b2a3d76b1f23cde4c",
+        "userName": "sub_admin",
+        "email": "subadmin@rimal.com",
+        "phone": "+974 4400 8888",
+        "role": 0,
+        "createdAt": "2026-07-10T17:42:00.000Z"
+      }
+    }
+    ```
+
+---
+
+## 7. Health Diagnostics (`/health`)
+
+### 7.1 Check Application Health
+*   **Method**: `GET`
+*   **URL**: `http://localhost:3000/health`
+*   **Headers**: None (Public)
+*   **Sample Response (200 OK - Healthy)**:
+    ```json
+    {
+      "message": "Application is healthy",
+      "result": {
+        "status": "UP",
+        "timestamp": "2026-07-10T22:16:42.312Z",
+        "environment": "development",
+        "version": "1.0.0",
+        "uptime": {
+          "seconds": 55,
+          "human": "55s"
+        },
+        "runtime": {
+          "node": "v22.18.0"
+        },
+        "services": {
+          "server": {
+            "status": "UP"
+          },
+          "database": {
+            "status": "UP",
+            "provider": "mongodb"
+          },
+          "storage": {
+            "status": "UP",
+            "provider": "supabase"
+          }
+        }
+      }
+    }
+    ```
+*   **Sample Response (503 Service Unavailable - Unhealthy)**:
+    ```json
+    {
+      "message": "Application is unhealthy",
+      "result": {
+        "status": "DOWN",
+        "timestamp": "2026-07-10T22:17:10.450Z",
+        "environment": "development",
+        "version": "1.0.0",
+        "uptime": {
+          "seconds": 83,
+          "human": "1m 23s"
+        },
+        "runtime": {
+          "node": "v22.18.0"
+        },
+        "services": {
+          "server": {
+            "status": "UP"
+          },
+          "database": {
+            "status": "DOWN",
+            "provider": "mongodb"
+          },
+          "storage": {
+            "status": "UP",
+            "provider": "supabase"
+          }
+        }
+      }
+    }
+    ```
+
+---
+
+## 8. Rate Limiting Policy
+
+To protect the platform against Denial of Service (DoS), brute force, credential stuffing, and spamming abuse, rate limiting has been enforced on all public write endpoints using `express-rate-limit`.
+
+All rate limit responses return **HTTP 429 Too Many Requests** with a standard JSON envelope:
+```json
+{
+  "message": "Too many attempts. Please try again later."
+}
+```
+
+### 8.1 Configured Limiters
+
+| Key / Name | Target Endpoint | Default Limit | Rationale |
+| :--- | :--- | :--- | :--- |
+| **`authLogin`** | `POST /auth/login` | 5 requests per 15 mins | Mitigates brute-force credential stuffing and password guessing attacks. |
+| **`authSignup`** | `POST /auth/signup` | 3 requests per 1 hour | Prevents massive automated bot registrations and spamming mail queues. |
+| **`verifySignupOtp`** | `POST /auth/verify-signup`| 5 requests per 15 mins | Prevents brute-forcing the 6-digit OTP verification token. |
+| **`resendSignupOtp`** | `POST /auth/resend-signup-otp`| 3 requests per 15 mins | Restricts mail resource consumption and prevents email flooding abuse. |
+| **`contact`** | `POST /contact` | 5 requests per 1 hour | Stops automated contact submission spam from filling up database collections. |
+
+*Note: Authenticated admin endpoints and public read/download actions are exempt from rate limiting to facilitate high-frequency administration operations and normal site browsing.*

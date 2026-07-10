@@ -10,4 +10,5 @@ export enum GenderEnum {
 export enum RoleEnum {
   User,
   Admin,
+  SuperAdmin,
 }

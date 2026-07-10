@@ -26,6 +26,11 @@ const userSchema = new Schema<IUser>(
   { timestamps: true, strictQuery: true },
 );
 
+userSchema.index({ userName: 1 });
+userSchema.index({ role: 1 });
+userSchema.index({ email: 1, role: 1 });
+
+
 userSchema.pre("save", async function (this: IHUser & { wasNew: boolean }) {
   this.wasNew = this.isNew;
   if (this.isModified("password")) {

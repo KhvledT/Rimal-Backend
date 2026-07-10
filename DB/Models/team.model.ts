@@ -6,6 +6,7 @@ export interface ITeamMember {
   department: string;
   email: string;
   photo: string;
+  photoKey?: string;
   description: string;
   expertise: string[];
   linkedin?: string;
@@ -20,6 +21,7 @@ const teamMemberSchema = new Schema<ITeamMember>(
     department: { type: String, required: true },
     email: { type: String, required: true },
     photo: { type: String, required: true },
+    photoKey: { type: String },
     description: { type: String, required: true },
     expertise: { type: [String], default: [] },
     linkedin: { type: String },

@@ -6,6 +6,7 @@ export interface IContactInfo {
   phones: string[];
   linkedIn: string;
   mapUrl: string;
+  isSingleton?: boolean;
 }
 
 export type IHContactInfo = HydratedDocument<IContactInfo>;
@@ -17,6 +18,7 @@ const contactInfoSchema = new Schema<IContactInfo>(
     phones: { type: [String], required: true },
     linkedIn: { type: String, required: true },
     mapUrl: { type: String, required: true },
+    isSingleton: { type: Boolean, default: true, unique: true },
   },
   { timestamps: true, strictQuery: true },
 );

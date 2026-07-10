@@ -7,7 +7,7 @@ class ContactInfoRepo extends DBRepo<IContactInfo> {
   }
 
   async getSingleton(): Promise<any | null> {
-    return await this.model.findOne();
+    return await this.model.findOne().lean();
   }
 
   async upsertSingleton(data: Partial<IContactInfo>) {

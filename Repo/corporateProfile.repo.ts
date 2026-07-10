@@ -7,7 +7,7 @@ class CorporateProfileRepo extends DBRepo<ICorporateProfile> {
   }
 
   async getSingleton(): Promise<any | null> {
-    return await this.model.findOne();
+    return await this.model.findOne().lean();
   }
 
   async upsertSingleton(data: ICorporateProfile) {

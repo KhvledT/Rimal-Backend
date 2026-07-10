@@ -1,11 +1,22 @@
-import type z from "zod";
-import type { loginSchema } from "./auth.validation.js";
-
-export type LoginDto = z.infer<typeof loginSchema.body>;
-
 export interface SignupDto {
   username: string;
   email: string;
   password: string;
-  role?: number;
+}
+
+export interface VerifySignupDto {
+  email: string;
+  otp: string;
+  username: string;
+  password: string;
+  phone?: string;
+}
+
+export interface ResendSignupOtpDto {
+  email: string;
+}
+
+export interface LoginDto {
+  username: string;
+  password: string;
 }

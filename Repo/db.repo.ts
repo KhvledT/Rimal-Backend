@@ -11,36 +11,48 @@ export default class DBRepo<T> {
     filter,
     select,
     options,
+    lean,
   }: {
     filter: any;
     select?: string | string[];
     options?: any;
+    lean?: boolean;
   }): Promise<any> {
-    return await this.model.findOne(filter, select, options);
+    const query = this.model.findOne(filter, select, options);
+    if (lean) query.lean();
+    return await query;
   }
 
   async findById({
     id,
     select,
     options,
+    lean,
   }: {
     id: string;
     select?: string | string[];
     options?: any;
+    lean?: boolean;
   }): Promise<any> {
-    return await this.model.findById(id, select, options);
+    const query = this.model.findById(id, select, options);
+    if (lean) query.lean();
+    return await query;
   }
 
   async find({
     filter,
     select,
     options,
+    lean,
   }: {
     filter: any;
     select?: string | string[];
     options?: any;
+    lean?: boolean;
   }): Promise<any[]> {
-    return await this.model.find(filter, select, options);
+    const query = this.model.find(filter, select, options);
+    if (lean) query.lean();
+    return await query;
   }
 
   async findOneAndUpdate({
@@ -91,16 +103,20 @@ export default class DBRepo<T> {
     limit = 10,
     select,
     options,
+    lean,
   }: {
     filter: any;
     page?: number;
     limit?: number;
     select?: string | string[];
     options?: any;
+    lean?: boolean;
   }) {
     const skip = (page - 1) * limit;
     const totalItems = await this.model.countDocuments(filter);
-    const data = await this.model.find(filter, select, { skip, limit, ...options });
+    const query = this.model.find(filter, select, { skip, limit, ...options });
+    if (lean) query.lean();
+    const data = await query;
     const totalPages = Math.ceil(totalItems / limit);
     return {
       data,
