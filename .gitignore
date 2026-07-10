@@ -1,0 +1,10 @@
+# dependencies
+node_modules/
+dist/
+uploads/*
+# environment variables
+.env
+.env.*
+
+
+social-media-linkup-firebase-adminsdk-fbsvc-f309e8a66c.json
