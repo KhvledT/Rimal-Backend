@@ -14,14 +14,6 @@ if (!allowedEnvs.includes(NODE_ENV)) {
 const envFileName = `.env.${NODE_ENV}`;
 const envFilePath = path.resolve(envFileName);
 
-if (!fs.existsSync(envFilePath)) {
-  throw new Error(`Environment file does not exist: ${envFilePath}`);
-}
-
-// Load configuration variables
-dotenv.config({ path: envFilePath });
-
-// 3. Define and validate required variables
 const requiredVars = [
   "DB_LOCAL",
   "SERVER_PORT",
@@ -37,6 +29,19 @@ const requiredVars = [
   "DEFAULT_SUPER_ADMIN_EMAIL",
   "DEFAULT_SUPER_ADMIN_PASSWORD",
 ];
+
+const hasAllRequiredInEnv = requiredVars.every((v) => process.env[v]);
+
+if (!fs.existsSync(envFilePath)) {
+  if (!hasAllRequiredInEnv) {
+    throw new Error(
+      `Environment file does not exist: ${envFilePath} and required environment variables are not set in process.env`,
+    );
+  }
+} else {
+  // Load configuration variables
+  dotenv.config({ path: envFilePath });
+}
 
 const missingVars = requiredVars.filter((v) => !process.env[v]);
 if (missingVars.length > 0) {
