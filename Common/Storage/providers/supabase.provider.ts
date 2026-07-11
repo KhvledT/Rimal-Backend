@@ -96,6 +96,23 @@ export class SupabaseStorageProvider implements IStorageProvider {
       return false;
     }
 
-    return data.some((item) => item.name === filename);
+    return data.some((item: any) => item.name === filename);
+  }
+
+  async generateSignedUploadUrl(
+    storageKey: string,
+    expiresAfterSeconds = 300,
+  ): Promise<string> {
+    const { data, error } = await this.client.storage
+      .from(this.bucketName)
+      .createSignedUploadUrl(storageKey);
+
+    if (error || !data) {
+      throw new BadRequest(
+        `Failed to generate signed upload URL: ${error?.message || "Unknown error"}`,
+      );
+    }
+
+    return data.signedUrl;
   }
 }

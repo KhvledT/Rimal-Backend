@@ -1,9 +1,6 @@
 import express from "express";
 import { authentication } from "../../Middleware/authentication.middleware.js";
 import success from "../../Common/Response/success.response.js";
-import { BadRequest } from "../../Common/Exeptions/domain.error.js";
-import cloudFileUpload from "../../Common/multer/multer.config.js";
-import { allowedFileFormats } from "../../Common/multer/multer.validation.js";
 import corporateProfileService from "./corporateProfile.service.js";
 
 const corporateProfileRouter: express.Router = express.Router();
@@ -55,23 +52,39 @@ corporateProfileRouter.get(
   },
 );
 
-corporateProfileRouter.put(
-  "/",
+corporateProfileRouter.get(
+  "/upload-url",
   authentication(),
-  cloudFileUpload({
-    allowedFormats: allowedFileFormats.pdf,
-    fileSize: 100, // 100 MB max size
-  }).single("file"),
   async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
     try {
-      if (!req.file) {
-        throw new BadRequest("PDF file is required in 'file' field");
-      }
-      const result = await corporateProfileService.updateProfile(req.file);
+      const result = await corporateProfileService.generateUploadUrl();
+      success({
+        res,
+        result,
+        message: "Upload URL generated successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+corporateProfileRouter.put(
+  "/",
+  authentication(),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const result = await corporateProfileService.updateProfileMetadata(
+        req.body,
+      );
       success({
         res,
         result,
@@ -104,3 +117,4 @@ corporateProfileRouter.delete(
 );
 
 export default corporateProfileRouter;
+export { corporateProfileRouter };

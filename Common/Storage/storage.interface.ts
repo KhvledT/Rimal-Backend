@@ -12,4 +12,8 @@ export interface IStorageProvider {
   getPublicUrl(storageKey: string): string;
   download(storageKey: string): Promise<Readable>;
   exists(storageKey: string): Promise<boolean>;
+  generateSignedUploadUrl(
+    storageKey: string,
+    expiresAfterSeconds?: number,
+  ): Promise<string>;
 }

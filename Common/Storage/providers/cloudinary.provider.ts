@@ -100,4 +100,22 @@ export class CloudinaryStorageProvider implements IStorageProvider {
       return false;
     }
   }
+
+  async generateSignedUploadUrl(
+    storageKey: string,
+    expiresAfterSeconds = 300,
+  ): Promise<string> {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const publicId = storageKey.split(":")[0];
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp,
+        public_id: publicId,
+        folder: "corporate-profile",
+      },
+      cloudinary.config().api_secret as string,
+    );
+
+    return `https://api.cloudinary.com/v1_1/${cloudinary.config().cloud_name}/auto/upload?api_key=${cloudinary.config().api_key}&timestamp=${timestamp}&public_id=${encodeURIComponent(publicId)}&folder=corporate-profile&signature=${signature}`;
+  }
 }
