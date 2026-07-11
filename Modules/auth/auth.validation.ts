@@ -72,3 +72,9 @@ export const loginSchema = {
       ),
   }),
 };
+
+export const refreshTokenSchema = {
+  body: z.strictObject({
+    refreshToken: z.string().min(1, "Refresh token is required"),
+  }),
+};

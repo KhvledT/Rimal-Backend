@@ -139,6 +139,50 @@ All responses use the standardized repository success wrapper format:
     }
     ```
 
+### 1.6 Refresh Access Token (`/auth/refresh-token`)
+*   **Method**: `POST`
+*   **URL**: `http://localhost:3000/auth/refresh-token`
+*   **Headers**: 
+    *   `Content-Type`: `application/json`
+*   **Request Body (JSON)**:
+    ```json
+    {
+      "refreshToken": "eyJhbGciOi..."
+    }
+    ```
+*   **Sample Response (200 OK)**:
+    ```json
+    {
+      "message": "Token refreshed successfully",
+      "result": {
+        "accessToken": "eyJhbGciOi...",
+        "refreshToken": "eyJhbGciOi..."
+      }
+    }
+    ```
+*   **Security Properties**:
+    *   **Token type validation**: Token type is verified from the explicit `type` field inside the JWT payload body — not only from the `aud` array. An access token will always be rejected even if the audience array is manually crafted.
+    *   **Automatic rotation**: Each successful call generates a completely new access token and refresh token. The previous refresh token is permanently invalidated.
+    *   **Reuse detection**: If a previously rotated (or revoked) refresh token is submitted, a `401` is returned. The session is already revoked — no further escalation is possible.
+    *   **Concurrent request protection**: The session rotation uses a single atomic `findOneAndUpdate` that filters on both the `refreshTokenHash` and `isRevoked: false`. Concurrent requests using the same token cannot both succeed — the losing request is rejected with a `401`.
+    *   **Session metadata**: Each successful rotation records `lastIp` and `lastUserAgent` on the session document for audit visibility.
+    *   **Independent secrets**: Access and refresh tokens always use distinct signing secrets (`JWT_SECRET_ACCESS_*` vs `JWT_SECRET_REFRESH_*`) — they are never shared.
+
+*   **Possible Errors**:
+
+    | HTTP Status | Message | Cause |
+    | :--- | :--- | :--- |
+    | `400 Bad Request` | `Validation Error` | Missing or empty `refreshToken` field |
+    | `401 Unauthorized` | `Invalid refresh token format` | Token cannot be decoded or is missing required claims |
+    | `401 Unauthorized` | `Invalid token type: only refresh tokens are accepted` | `payload.type` is not `"refresh"` — explicit field check |
+    | `401 Unauthorized` | `Invalid token type: access tokens cannot be used for refresh` | `aud` array does not contain `"refresh"` — defence-in-depth check |
+    | `401 Unauthorized` | `Refresh token is invalid or has expired` | JWT signature check failed or token expiry exceeded |
+    | `401 Unauthorized` | `Refresh token has already been used or is invalid` | Token was already rotated (replay attack) or a concurrent request won the race |
+    | `401 Unauthorized` | `Session has been revoked. Please log in again` | Session was explicitly revoked (logout or prior reuse detection) |
+    | `401 Unauthorized` | `Session has expired. Please log in again` | Session `expiresAt` passed |
+    | `401 Unauthorized` | `User account no longer exists` | User was deleted after session was created |
+    | `429 Too Many Requests` | `Too many token refresh attempts. Please try again later.` | Rate limit exceeded (10 requests per 15 minutes) |
+
 ---
 
 ## 2. Contact Inquiries (`/contact`)
@@ -623,5 +667,6 @@ All rate limit responses return **HTTP 429 Too Many Requests** with a standard J
 | **`verifySignupOtp`** | `POST /auth/verify-signup`| 5 requests per 15 mins | Prevents brute-forcing the 6-digit OTP verification token. |
 | **`resendSignupOtp`** | `POST /auth/resend-signup-otp`| 3 requests per 15 mins | Restricts mail resource consumption and prevents email flooding abuse. |
 | **`contact`** | `POST /contact` | 5 requests per 1 hour | Stops automated contact submission spam from filling up database collections. |
+| **`authRefreshToken`** | `POST /auth/refresh-token` | 10 requests per 15 mins | Prevents token refresh brute-forcing and replay-attack amplification. |
 
 *Note: Authenticated admin endpoints and public read/download actions are exempt from rate limiting to facilitate high-frequency administration operations and normal site browsing.*

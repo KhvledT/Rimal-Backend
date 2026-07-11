@@ -9,6 +9,8 @@ import {
   RATE_LIMIT_RESEND_WINDOW,
   RATE_LIMIT_CONTACT_MAX,
   RATE_LIMIT_CONTACT_WINDOW,
+  RATE_LIMIT_REFRESH_MAX,
+  RATE_LIMIT_REFRESH_WINDOW,
 } from "../../config/config.service.js";
 import type { RateLimitConfigOptions } from "./rateLimit.types.js";
 
@@ -46,6 +48,12 @@ export const rateLimitConfigs: Record<string, RateLimitConfigOptions> = {
     windowMs: RATE_LIMIT_CONTACT_WINDOW,
     max: RATE_LIMIT_CONTACT_MAX,
     message: "Too many contact messages submitted. Please try again later.",
+    ...commonHeaders,
+  },
+  authRefreshToken: {
+    windowMs: RATE_LIMIT_REFRESH_WINDOW,
+    max: RATE_LIMIT_REFRESH_MAX,
+    message: "Too many token refresh attempts. Please try again later.",
     ...commonHeaders,
   },
 };

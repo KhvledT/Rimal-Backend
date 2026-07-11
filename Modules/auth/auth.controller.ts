@@ -6,6 +6,7 @@ import {
   signupSchema,
   verifySignupSchema,
   resendSignupOtpSchema,
+  refreshTokenSchema,
 } from "./auth.validation.js";
 import { validation } from "../../Middleware/validation.middleware.js";
 import { authentication } from "../../Middleware/authentication.middleware.js";
@@ -123,6 +124,32 @@ authRouter.post(
         res,
         StatusCode: 200,
         message: "Logged out successfully",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+authRouter.post(
+  "/refresh-token",
+  RateLimitFactory.createLimiter("authRefreshToken"),
+  validation(refreshTokenSchema),
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    try {
+      const result = await authService.refreshToken(req.body, {
+        ip: req.ip || req.socket.remoteAddress,
+        userAgent: req.headers["user-agent"],
+      });
+      success({
+        res,
+        StatusCode: 200,
+        result,
+        message: "Token refreshed successfully",
       });
     } catch (error) {
       next(error);

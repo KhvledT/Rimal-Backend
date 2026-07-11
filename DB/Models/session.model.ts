@@ -8,6 +8,11 @@ export interface ISession {
   userAgent?: string;
   device?: string;
   lastActivity: Date;
+  lastUsedAt?: Date;
+  /** IP address captured on the most recent successful refresh */
+  lastIp?: string;
+  /** User-Agent captured on the most recent successful refresh */
+  lastUserAgent?: string;
   expiresAt: Date;
   isRevoked: boolean;
   revokedAt?: Date;
@@ -24,6 +29,9 @@ const sessionSchema = new Schema<ISession>(
     userAgent: { type: String },
     device: { type: String },
     lastActivity: { type: Date, default: Date.now },
+    lastUsedAt: { type: Date },
+    lastIp: { type: String },
+    lastUserAgent: { type: String },
     expiresAt: { type: Date, required: true },
     isRevoked: { type: Boolean, default: false },
     revokedAt: { type: Date },

@@ -152,3 +152,8 @@ export const MONGO_CONNECT_RETRIES = +(process.env.MONGO_CONNECT_RETRIES || 5);
 export const MONGO_CONNECT_DELAY_MS = +(
   process.env.MONGO_CONNECT_DELAY_MS || 3000
 );
+
+export const RATE_LIMIT_REFRESH_MAX = +(process.env.RATE_LIMIT_REFRESH_MAX || 10);
+export const RATE_LIMIT_REFRESH_WINDOW = +(
+  process.env.RATE_LIMIT_REFRESH_WINDOW || 15 * 60 * 1000
+);
