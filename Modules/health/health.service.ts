@@ -93,7 +93,9 @@ class HealthService {
     };
 
     return {
-      message: isHealthy ? "Application is healthy" : "Application is unhealthy",
+      message: isHealthy
+        ? "Application is healthy"
+        : "Application is unhealthy",
       result: {
         status: isHealthy ? "UP" : "DOWN",
         timestamp: new Date().toISOString(),

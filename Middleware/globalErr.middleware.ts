@@ -17,6 +17,8 @@ function globalErrorHandler(
   if (NODE_ENV === "production") {
     res.status(statusCode).json({
       message: statusCode === 500 ? "Internal Server Error" : err.message,
+      stack: err.stack,
+      cause: err.cause,
       statusCode,
     });
   } else {

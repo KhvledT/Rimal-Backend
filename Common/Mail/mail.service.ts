@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
-import { NODEMAILER_USER, NODEMAILER_PASS } from "../../config/config.service.js";
+import {
+  NODEMAILER_USER,
+  NODEMAILER_PASS,
+} from "../../config/config.service.js";
 import { loggerService } from "../Logger/logger.service.js";
 
 class MailService {
