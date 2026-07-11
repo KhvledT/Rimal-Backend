@@ -16,7 +16,11 @@ app.set("trust proxy", 1);
 // Configure CORS correctly with support for Vercel/production domains via env configs
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(",")
-  : ["http://localhost:3000", "http://localhost:5173"];
+  : [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "http://localhost:8080",
+    ];
 
 app.use(
   cors({
