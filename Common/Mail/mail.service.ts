@@ -22,10 +22,12 @@ class MailService {
     to,
     subject,
     html,
+    text,
   }: {
     to: string;
     subject: string;
     html: string;
+    text?: string;
   }) {
     try {
       await this.transporter.sendMail({
@@ -33,6 +35,7 @@ class MailService {
         to,
         subject,
         html,
+        text,
       });
     } catch (error) {
       loggerService.error("Failed to send mail:", error);

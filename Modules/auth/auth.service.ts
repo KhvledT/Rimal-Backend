@@ -129,10 +129,12 @@ class AuthService {
     });
 
     // Send email with OTP
+    const { html, text } = getSignupOtpTemplate(otp);
     await mailService.sendMail({
       to: email,
       subject: "Rimal Registration Code",
-      html: getSignupOtpTemplate(otp),
+      html,
+      text,
     });
 
     return {
@@ -252,10 +254,12 @@ class AuthService {
       isUsed: false,
     });
 
+    const { html, text } = getSignupOtpTemplate(otp);
     await mailService.sendMail({
       to: email,
       subject: "Rimal Registration Code",
-      html: getSignupOtpTemplate(otp),
+      html,
+      text,
     });
 
     return {
