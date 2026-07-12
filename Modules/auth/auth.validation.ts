@@ -54,14 +54,10 @@ export const resendSignupOtpSchema = {
 
 export const loginSchema = {
   body: z.strictObject({
-    username: z
+    identifier: z
       .string()
-      .min(3, "Username must be at least 3 characters long")
-      .max(20, "Username must be at most 20 characters long")
-      .regex(
-        /^(?=.*[a-zA-Z])[a-zA-Z0-9_]+$/,
-        "Username must contain at least one letter and can only contain letters, numbers, and underscores",
-      ),
+      .trim()
+      .min(1, "Identifier is required"),
     password: z
       .string()
       .min(6, "Password must be at least 6 characters long")

@@ -106,7 +106,7 @@ All responses use the standardized repository success wrapper format:
 *   **Request Body (JSON)**:
     ```json
     {
-      "username": "new_user", // Can be username or email
+      "identifier": "new_user", // Can be username or email
       "password": "SecurePassword123"
     }
     ```

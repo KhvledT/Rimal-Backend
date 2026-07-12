@@ -38,13 +38,16 @@ class AuthService {
   }
 
   async login(body: LoginDto, reqMetadata?: { ip?: string; userAgent?: string }) {
-    const { username, password } = body;
+    const { identifier, password } = body;
+
+    // Determine identifier type
+    const queryFilter = identifier.includes("@")
+      ? { email: identifier, deletedAt: null }
+      : { userName: identifier, deletedAt: null };
 
     // Find user by userName or email
     const user = await this._userRepo.findOne({
-      filter: {
-        $or: [{ userName: username }, { email: username }],
-      },
+      filter: queryFilter,
     });
 
     if (!user) {
